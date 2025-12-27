@@ -14,11 +14,21 @@ export const Formations = {
  * Helper enum for orientations
  * @typedef {keyof Orientations} Orientation
  */
-const Orientations = {
+export const Orientations = {
     TOPS: 'TOPS',
     SIDES: 'SIDES',
     OTHER: 'OTHER'
 }
+
+export const Role = {
+    LEAD: 'LEAD',
+    FOLLOW: 'FOLLOW',
+    ALL: 'ALL',
+    LEFT: 'LEFT',
+    RIGHT: 'RIGHT',
+    CENTER: 'CENTER'
+}
+
 /**
  * Helper enum for relationships
  * @typedef {keyof Relationships} Relationship
@@ -129,6 +139,10 @@ export const Directions = {
     RIGHT: 'RIGHT',
     LEFT: 'LEFT',
     UP: 'UP',
-    DOWN: 'DOWN'
+    DOWN: 'DOWN',
+    UP_LEFT: 'UP_LEFT',
+    UP_RIGHT: 'UP_RIGHT',
+    DOWN_LEFT: 'DOWN_LEFT',
+    DOWN_RIGHT: 'DOWN_RIGHT'
 }
 export const BEATS = 500

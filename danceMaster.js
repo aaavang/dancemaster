@@ -228,19 +228,6 @@ export class DanceMaster {
         }
     }
 
-    getFacingDirection(dancer) {
-        const rotation = normalizeRotation(dancer.arrowElem);
-        if (rotation >= 46 && rotation < 135) {
-            return Directions.LEFT
-        } else if (rotation >= 135 && rotation < 225) {
-            return Directions.UP
-        } else if (rotation >= 225 && rotation < 315) {
-            return Directions.RIGHT
-        } else {
-            return Directions.DOWN
-        }
-    }
-
     /**
      * Get the position for a specific relationship
      * @param {Position} currentPosition

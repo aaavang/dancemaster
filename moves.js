@@ -1,6 +1,43 @@
 import {clearHeader, freezeHeader, resetCount, tick, unfreezeHeader, updateHeader} from "./header.js";
-import {BEATS, DancerLayouts, Directions, FormationGroups, Formations, Positions, Relationships} from "./enums.js";
+import {
+    BEATS,
+    DancerLayouts,
+    Directions,
+    FormationGroups,
+    Formations,
+    Positions,
+    Relationships, Role,
+    Role as Roles
+} from "./enums.js";
 
+
+/**
+ * Normalize an arrow's rotation to be between 0 and 360.
+ * @param {HTMLDivElement} arrow
+ * @returns {number} - the normalized rotation
+ */
+export const normalizeRotation = (arrow) => {
+    const rotationStr = arrow.style.transform.match(/rotate\((.+)deg\)/)[1]
+    let rotation = parseInt(rotationStr)
+    rotation = rotation % 360
+    if (rotation < 0) {
+        rotation += 360
+    }
+    return rotation
+}
+
+export const getFacingDirection = (dancer) => {
+    const rotation = normalizeRotation(dancer.arrowElem);
+    if (rotation >= 46 && rotation < 135) {
+        return Directions.LEFT
+    } else if (rotation >= 135 && rotation < 225) {
+        return Directions.UP
+    } else if (rotation >= 225 && rotation < 315) {
+        return Directions.RIGHT
+    } else {
+        return Directions.DOWN
+    }
+}
 
 export let positions
 /**
@@ -93,21 +130,35 @@ export const calcPositions = (width, height) => {
 
 calcPositions(window.innerWidth, window.innerHeight)
 
-/**
- * Get the offset of the dancer from their starting position
- * @param formation
- * @param dancer
- * @returns {{x: number, y: number}}
- */
-const getCurrentOffset = (formation, dancer) => {
-    const startingPosition = positions[formation][dancer.role]
-    const currentPosition = positions[formation][dancer.currentNamedPosition]
+const getTranslation = (dancer) => {
+    const style = window.getComputedStyle(dancer.elem);
+    const transform = style.transform;
 
-    return {
-        x: currentPosition.x - startingPosition.x,
-        y: currentPosition.y - startingPosition.y
+    // Default values if no transform
+    if (transform === 'none' || !transform) {
+        return { x: 0, y: 0 };
     }
+
+    // Parse matrix values
+    // 2D matrix format: matrix(a, b, c, d, tx, ty)
+    // 3D matrix format: matrix3d(a, b, c, d, e, f, g, h, i, j, k, l, tx, ty, tz, tw)
+    const matrixMatch = transform.match(/matrix.*\((.+)\)/);
+
+    if (matrixMatch) {
+        const values = matrixMatch[1].split(', ').map(parseFloat);
+
+        if (transform.startsWith('matrix3d')) {
+            // For 3D matrix, translation values are at indices 12 and 13
+            return { x: values[12], y: values[13] };
+        } else {
+            // For 2D matrix, translation values are at indices 4 and 5
+            return { x: values[4], y: values[5] };
+        }
+    }
+
+    return { x: 0, y: 0 };
 }
+
 /**
  * Move to fast sevens with partner
  * @param danceMaster
@@ -675,6 +726,9 @@ export const innerQuarterCircle = async (danceMaster, direction, leadsActive, en
                     translateY,
                     complete: () => {
                         dancer.currentNamedPosition = nextPositionName
+                        if (endInRegularPosition) {
+                            dancer.turnedAround = false
+                        }
                     }
                 })
 
@@ -800,13 +854,20 @@ const circleHalfway = async (danceMaster, direction) => {
  * Helper move to do two threes in a specific direction
  * @param danceMaster
  * @param direction
+ * @param whosActive
  * @returns {Promise<Awaited<unknown>[]>}
  */
-const twoThrees = async (danceMaster, direction) => {
+const twoThrees = async (danceMaster, direction, whosActive = Roles.ALL) => {
     const state = danceMaster.state
     updateHeader("Two Threes")
     const timelines = [];
     for (const dancer of Object.values(state.dancers)) {
+        if (whosActive === Roles.LEAD && !dancer.role.includes("lead")) {
+            continue
+        } else if (whosActive === Roles.FOLLOW && !dancer.role.includes("follow")) {
+            continue
+        }
+
         const timeline = anime.timeline({
             targets: dancer.targetId,
             duration: 1 * BEATS,
@@ -814,7 +875,8 @@ const twoThrees = async (danceMaster, direction) => {
             autoplay: false
         })
 
-        const currentOffsets = getCurrentOffset(state.formation, dancer)
+        const currentOffsets = getTranslation(dancer)
+        const currentDirection = getFacingDirection(dancer)
 
         let firstTranslateX = currentOffsets.x
         let secondTranslateX = currentOffsets.x
@@ -822,24 +884,20 @@ const twoThrees = async (danceMaster, direction) => {
         let secondTranslateY = currentOffsets.y
 
         const bumpAmount = 10;
-        switch (dancer.currentNamedPosition) {
-            case Positions.FIRST_TOP_LEAD:
-            case Positions.FIRST_TOP_FOLLOW:
+        switch (currentDirection) {
+            case Directions.DOWN:
                 firstTranslateX -= bumpAmount
                 secondTranslateX += bumpAmount
                 break;
-            case Positions.SECOND_TOP_LEAD:
-            case Positions.SECOND_TOP_FOLLOW:
+            case Directions.UP:
                 firstTranslateX += bumpAmount
                 secondTranslateX -= bumpAmount
                 break;
-            case Positions.FIRST_SIDE_LEAD:
-            case Positions.FIRST_SIDE_FOLLOW:
+            case Directions.LEFT:
                 firstTranslateY -= bumpAmount
                 secondTranslateY += bumpAmount
                 break;
-            case Positions.SECOND_SIDE_LEAD:
-            case Positions.SECOND_SIDE_FOLLOW:
+            case Directions.RIGHT:
                 firstTranslateY += bumpAmount
                 secondTranslateY -= bumpAmount
         }
@@ -883,26 +941,23 @@ const sidestep = async (danceMaster, direction) => {
             easing: 'linear',
             autoplay: false
         })
-        const currentOffsets = getCurrentOffset(state.formation, dancer)
+        const currentOffsets = getTranslation(dancer)
+        const directionFacing = getFacingDirection(dancer)
         let xOffset = currentOffsets.x
         let yOffset = currentOffsets.y
 
         const distance = 100;
-        switch (dancer.currentNamedPosition) {
-            case Positions.FIRST_TOP_LEAD:
-            case Positions.SECOND_TOP_FOLLOW:
+        switch (directionFacing) {
+            case Directions.LEFT:
                 yOffset += direction === Directions.RIGHT ? -distance : distance
                 break;
-            case Positions.FIRST_TOP_FOLLOW:
-            case Positions.SECOND_TOP_LEAD:
+            case Directions.RIGHT:
                 yOffset += direction === Directions.RIGHT ? distance : -distance
                 break;
-            case Positions.FIRST_SIDE_LEAD:
-            case Positions.SECOND_SIDE_FOLLOW:
+            case Directions.UP:
                 xOffset += direction === Directions.RIGHT ? distance : -distance
                 break;
-            case Positions.SECOND_SIDE_LEAD:
-            case Positions.FIRST_SIDE_FOLLOW:
+            case Directions.DOWN:
                 xOffset += direction === Directions.RIGHT ? -distance : distance
                 break;
         }
@@ -940,7 +995,7 @@ const turnPartnerHalfway = async (danceMaster, direction) => {
         const partnerPositionName = danceMaster.getPositionNameFromRelationship(dancer.currentNamedPosition, Relationships.PARTNER)
         const currentPosition = positions[state.formation][dancer.currentNamedPosition]
         const partnerPosition = positions[state.formation][partnerPositionName]
-        const currentOffsets = getCurrentOffset(state.formation, dancer)
+        const currentOffsets = getTranslation(dancer)
 
         const halfwayPoint = {
             x: (currentPosition.x + partnerPosition.x) / 2,
@@ -1008,20 +1063,6 @@ const turnPartnerHalfway = async (danceMaster, direction) => {
 
     timelines.forEach(timeline => timeline.play())
     return Promise.all(timelines.map(timeline => timeline.finished))
-}
-/**
- * Normalize an arrow's rotation to be between 0 and 360.
- * @param {HTMLDivElement} arrow
- * @returns {number} - the normalized rotation
- */
-export const normalizeRotation = (arrow) => {
-    const rotationStr = arrow.style.transform.match(/rotate\((.+)deg\)/)[1]
-    let rotation = parseInt(rotationStr)
-    rotation = rotation % 360
-    if (rotation < 0) {
-        rotation += 360
-    }
-    return rotation
 }
 /**
  *
@@ -1129,7 +1170,7 @@ export const quarterHouse = async (danceMaster, direction) => {
             const nextPositionName = danceMaster.getNextPositionNameOfSameRole(direction, movingDancer.currentNamedPosition)
             const partnerNextPositionName = danceMaster.getNextPositionNameOfSameRole(direction, partner.currentNamedPosition)
             const nextPosition = positions[state.formation][nextPositionName]
-            const movingCurrentOffsets = getCurrentOffset(state.formation, movingDancer)
+            const movingCurrentOffsets = getTranslation(movingDancer)
 
             const translateX = movingCurrentOffsets.x + (nextPosition.x - currentPosition.x)
             const translateY = movingCurrentOffsets.y + (nextPosition.y - currentPosition.y)
@@ -1268,6 +1309,10 @@ export const goHome = async (danceMaster) => {
     updateHeader('Go Home')
     let timelines = []
     for (const dancer of Object.values(danceMaster.state.dancers)) {
+        dancer.turnedAround = false
+    }
+
+    for (const dancer of Object.values(danceMaster.state.dancers)) {
         timelines.push(facePosition(danceMaster, dancer, dancer.role))
     }
     await Promise.all(timelines)
@@ -1377,6 +1422,10 @@ export const sidestepRight = (danceMaster) => sidestep(danceMaster, Directions.R
 export const sidestepLeft = (danceMaster) => sidestep(danceMaster, Directions.LEFT);
 export const twoThreesToTheRight = (danceMaster) => twoThrees(danceMaster, Directions.RIGHT);
 export const twoThreesToTheLeft = (danceMaster) => twoThrees(danceMaster, Directions.LEFT);
+export const followsTwoThreesToTheLeftWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.LEFT, Roles.FOLLOW), followsTurnAround(danceMaster)]);
+export const leadsTwoThreesToTheLeftWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.LEFT, Roles.LEAD), leadsTurnAround(danceMaster)]);
+export const followsTwoThreesToTheRightWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.RIGHT, Roles.FOLLOW), followsTurnAround(danceMaster)]);
+export const leadsTwoThreesToTheRightWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.RIGHT, Roles.LEAD), leadsTurnAround(danceMaster)]);
 export const twoThreesToTheRightEndFacingPartner = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.RIGHT), facePartner(danceMaster)]);
 export const twoThreesToTheLeftEndFacingPartner = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.LEFT), facePartner(danceMaster)]);
 export const fastSwitchWithPartner = (danceMaster) => switchWithPartner(danceMaster, 2);

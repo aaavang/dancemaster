@@ -1,8 +1,7 @@
 import {Formations} from "./enums.js";
 import {
-    calcPositions, 
-    goHome, 
-    positions,
+    calcPositions,
+    goHome,
     mingle,
     randomizeDancerOffsets,
     quarterHouseRight,
@@ -40,7 +39,10 @@ import {
     leadsInnerQuarterCircleLeftEndHome,
     followsInnerQuarterCircleRightEndHome,
     followsInnerQuarterCircleLeftEndHome,
-    clapTwice
+    clapTwice,
+    followsTwoThreesToTheLeftWhileTurningAround,
+    leadsTwoThreesToTheLeftWhileTurningAround,
+    leadsTwoThreesToTheRightWhileTurningAround, followsTwoThreesToTheRightWhileTurningAround
 } from "./moves.js";
 import {dances} from "./dances.js";
 import {DanceMaster} from "./danceMaster.js";
@@ -88,6 +90,10 @@ window.onload = async () => {
         { name: 'facePartner', func: facePartner },
         { name: 'twoThreesToTheRight', func: twoThreesToTheRight },
         { name: 'twoThreesToTheLeft', func: twoThreesToTheLeft },
+        { name: 'followsTwoThreesToTheLeftWhileTurningAround', func: followsTwoThreesToTheLeftWhileTurningAround },
+        { name: 'leadsTwoThreesToTheLeftWhileTurningAround', func: leadsTwoThreesToTheLeftWhileTurningAround },
+        { name: 'followsTwoThreesToTheRightWhileTurningAround', func: followsTwoThreesToTheRightWhileTurningAround },
+        { name: 'leadsTwoThreesToTheRightWhileTurningAround', func: leadsTwoThreesToTheRightWhileTurningAround },
         { name: 'twoThreesToTheRightEndFacingPartner', func: twoThreesToTheRightEndFacingPartner },
         { name: 'twoThreesToTheLeftEndFacingPartner', func: twoThreesToTheLeftEndFacingPartner },
         { name: 'advanceAndRetire', func: advanceAndRetire },
@@ -132,18 +138,6 @@ window.onload = async () => {
 
     await danceMaster.runMove(randomizeDancerOffsets)
     await danceMaster.runMove(mingle)
-
-    // danceMaster.addMove(Moves.facePartner)
-    // danceMaster.addMove(Moves.swingPartner)
-    // danceMaster.addMove(Moves.facePartner)
-    // danceMaster.addMove(Moves.quarterHouseRight)
-    // danceMaster.addMove(Moves.quarterHouseRight)
-    // danceMaster.addMove(Moves.quarterHouseRight)
-    // danceMaster.addMove(Moves.quarterHouseRight)
-    // danceMaster.addMove(Moves.quarterHouseLeft)
-    // danceMaster.addMove(Moves.quarterHouseLeft)
-    // danceMaster.addMove(Moves.quarterHouseLeft)
-    // danceMaster.addMove(Moves.quarterHouseLeft)
 }
 
 const resetDanceMaster = (formation) => {
@@ -153,49 +147,10 @@ const resetDanceMaster = (formation) => {
     });
 }
 
-const doThreeTunes = async () => {
-    await performDance(dances["The Three Tunes"])
-}
-
 const performDance = async (dance) => {
     danceMaster.mingling = false
     resetDanceMaster(dance.formation)
     await goHome(danceMaster)
     await dance.executor.do(danceMaster)
 }
-
-const bonfireDance = async () => {
-    // danceMaster.mingling = false
-    // resetDanceMaster(Formations.EIGHT_HAND_SQUARE)
-    // danceMaster.withMove(Moves.advanceAndRetire)
-    // danceMaster.withMove(Moves.advanceAndRetire)
-    // danceMaster.withMove(Moves.quarterCircleRight)
-    // danceMaster.withMove(Moves.twoThreesToTheRight)
-    // danceMaster.withMove(Moves.quarterCircleLeft)
-    // danceMaster.withMove(Moves.twoThreesToTheLeft)
-    // danceMaster.withMove(Moves.advanceAndRetire)
-    // danceMaster.withMove(Moves.advanceAndRetire)
-    // danceMaster.withMove(Moves.quarterCircleLeft);
-    // danceMaster.withMove(Moves.twoThreesToTheLeft);
-    // danceMaster.withMove(Moves.quarterCircleRight)
-    // danceMaster.withMove(Moves.twoThreesToTheRightEndFacingPartner);
-    // danceMaster.withMove(Moves.sidestepRight);
-    // danceMaster.withMove(Moves.turnPartnerHalfwayByTheRight);
-    // danceMaster.withMove(Moves.turnPartnerHalfwayByTheLeft);
-    // danceMaster.withMove(Moves.sidestepLeft);
-    // danceMaster.withMove(Moves.turnPartnerHalfwayByTheLeft);
-    // danceMaster.withMove(Moves.turnPartnerHalfwayByTheRight);
-    // danceMaster.withMove(Moves.faceCenter);
-    // danceMaster.withMove(Moves.followsInnerQuarterCircleRight);
-    // danceMaster.withMove(Moves.followsTurnAround)
-    // danceMaster.withMove(Moves.followsInnerQuarterCircleRightEndHome);
-    // danceMaster.withMove(Moves.followsTurnAround)
-    // danceMaster.withMove(Moves.leadsInnerQuarterCircleLeft);
-    // danceMaster.withMove(Moves.leadsTurnAround)
-    // danceMaster.withMove(Moves.leadsInnerQuarterCircleLeftEndHome);
-    // danceMaster.withMove(Moves.leadsTurnAround)
-    //
-    // danceMaster.run();
-}
-
 

@@ -1,4 +1,4 @@
-import {CeiliDance, FigureDance} from "./figureDance.js";
+import {CeiliDance, FigureDance} from "./dance.js";
 import {
     Moves,
     quarterCircleLeft,
@@ -15,7 +15,11 @@ import {
     turnPartnerHalfwayByTheRight,
     turnPartnerHalfwayByTheLeft,
     sidestepLeft,
-    faceCenter, twoThreesToTheRightEndFacingPartner
+    faceCenter,
+    twoThreesToTheRightEndFacingPartner,
+    followsInnerQuarterCircleLeft,
+    followsTurnAround,
+    followsInnerQuarterCircleRight, followsTwoThreesToTheRightWhileTurningAround, followsInnerQuarterCircleLeftEndHome
 } from "./moves.js";
 import {Formations} from "./enums.js";
 
@@ -52,25 +56,30 @@ export const threeTunes = new FigureDance("Three Tunes")
 
 export const bonfireDance = new CeiliDance("Bonfire Dance")
     .withMoves(new Moves([
-            advanceAndRetire,
-            advanceAndRetire,
-            quarterCircleRight,
-            twoThreesToTheRight,
-            quarterCircleLeft,
-            twoThreesToTheLeft,
-            advanceAndRetire,
-            advanceAndRetire,
-            quarterCircleLeft,
-            twoThreesToTheLeft,
-            quarterCircleRight,
-            twoThreesToTheRightEndFacingPartner,
-            sidestepRight,
-            turnPartnerHalfwayByTheRight,
-            turnPartnerHalfwayByTheLeft,
-            sidestepLeft,
-            turnPartnerHalfwayByTheLeft,
-            turnPartnerHalfwayByTheRight,
-            faceCenter
+            // advanceAndRetire,
+            // advanceAndRetire,
+            // quarterCircleRight,
+            // twoThreesToTheRight,
+            // quarterCircleLeft,
+            // twoThreesToTheLeft,
+            // advanceAndRetire,
+            // advanceAndRetire,
+            // quarterCircleLeft,
+            // twoThreesToTheLeft,
+            // quarterCircleRight,
+            // twoThreesToTheRightEndFacingPartner,
+            //
+            // sidestepRight,
+            // turnPartnerHalfwayByTheRight,
+            // turnPartnerHalfwayByTheLeft,
+            // sidestepLeft,
+            // turnPartnerHalfwayByTheLeft,
+            // turnPartnerHalfwayByTheRight,
+            // faceCenter,
+
+            followsInnerQuarterCircleRight,
+            followsTwoThreesToTheRightWhileTurningAround,
+            followsInnerQuarterCircleLeftEndHome,
         ]))
 
 export const dances = {
