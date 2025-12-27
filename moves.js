@@ -1,6 +1,8 @@
 import {clearHeader, freezeHeader, resetCount, tick, unfreezeHeader, updateHeader} from "./header.js";
 import {BEATS, DancerLayouts, Directions, FormationGroups, Formations, Positions, Relationships} from "./enums.js";
 
+
+export let positions
 /**
  * Get the positions of the dancers in the formation given the width and height of the dance floor
  * @param width
@@ -13,7 +15,7 @@ export const calcPositions = (width, height) => {
         y: height / 2 + 100
     }
 
-    return {
+    positions = {
         center,
         [Formations.EIGHT_HAND_SQUARE]: {
             [Positions.FIRST_TOP_FOLLOW]: {
@@ -88,7 +90,8 @@ export const calcPositions = (width, height) => {
         // }
     }
 }
-export let positions = calcPositions(window.innerWidth, window.innerHeight)
+
+calcPositions(window.innerWidth, window.innerHeight)
 
 /**
  * Get the offset of the dancer from their starting position

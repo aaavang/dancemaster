@@ -51,6 +51,11 @@ window.onload = async () => {
         formation: Formations.EIGHT_HAND_SQUARE
     });
 
+    window.addEventListener('resize', function() {
+        calcPositions(window.innerWidth, window.innerHeight)
+        danceMaster.adjustPositions()
+    });
+
     const movesButtons = window.document.getElementById('moves')
     const formationButtons = window.document.getElementById('formations')
     const danceButtons = window.document.getElementById('dances')
@@ -193,7 +198,4 @@ const bonfireDance = async () => {
     // danceMaster.run();
 }
 
-window.addEventListener('resize', function() {
-    positions = calcPositions(window.innerWidth, window.innerHeight)
-    danceMaster.adjustPositions()
-});
+
