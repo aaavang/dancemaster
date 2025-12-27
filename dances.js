@@ -19,7 +19,17 @@ import {
     twoThreesToTheRightEndFacingPartner,
     followsInnerQuarterCircleLeft,
     followsTurnAround,
-    followsInnerQuarterCircleRight, followsTwoThreesToTheRightWhileTurningAround, followsInnerQuarterCircleLeftEndHome
+    followsInnerQuarterCircleRight,
+    followsTwoThreesToTheRightWhileTurningAround,
+    followsInnerQuarterCircleLeftEndHome,
+    leadsInnerQuarterCircleLeft,
+    leadsTwoThreesToTheLeftWhileTurningAround,
+    leadsInnerQuarterCircleLeftEndHome,
+    swingPartner,
+    followsInnerQuarterCircleRightEndHome,
+    swingPartnerEndFacingCenter,
+    followsTwoThreesToTheLeft,
+    followsTwoThreesToTheRight, leadsTwoThreesToTheLeft
 } from "./moves.js";
 import {Formations} from "./enums.js";
 
@@ -56,30 +66,37 @@ export const threeTunes = new FigureDance("Three Tunes")
 
 export const bonfireDance = new CeiliDance("Bonfire Dance")
     .withMoves(new Moves([
-            // advanceAndRetire,
-            // advanceAndRetire,
-            // quarterCircleRight,
-            // twoThreesToTheRight,
-            // quarterCircleLeft,
-            // twoThreesToTheLeft,
-            // advanceAndRetire,
-            // advanceAndRetire,
-            // quarterCircleLeft,
-            // twoThreesToTheLeft,
-            // quarterCircleRight,
-            // twoThreesToTheRightEndFacingPartner,
-            //
-            // sidestepRight,
-            // turnPartnerHalfwayByTheRight,
-            // turnPartnerHalfwayByTheLeft,
-            // sidestepLeft,
-            // turnPartnerHalfwayByTheLeft,
-            // turnPartnerHalfwayByTheRight,
-            // faceCenter,
+            advanceAndRetire,
+            advanceAndRetire,
+            quarterCircleRight,
+            twoThreesToTheRight,
+            quarterCircleLeft,
+            twoThreesToTheLeft,
+            advanceAndRetire,
+            advanceAndRetire,
+            quarterCircleLeft,
+            twoThreesToTheLeft,
+            quarterCircleRight,
+            twoThreesToTheRightEndFacingPartner,
+
+            sidestepRight,
+            turnPartnerHalfwayByTheRight,
+            turnPartnerHalfwayByTheLeft,
+            sidestepLeft,
+            turnPartnerHalfwayByTheLeft,
+            turnPartnerHalfwayByTheRight,
+            faceCenter,
 
             followsInnerQuarterCircleRight,
             followsTwoThreesToTheRightWhileTurningAround,
-            followsInnerQuarterCircleLeftEndHome,
+            followsInnerQuarterCircleRight,
+            followsTwoThreesToTheRight,
+            turnPartnerHalfwayByTheRight,
+            turnPartnerHalfwayByTheRight,
+            (dancemaster) => Promise.all([followsTurnAround(dancemaster), leadsInnerQuarterCircleLeft(dancemaster)]),
+            leadsTwoThreesToTheLeftWhileTurningAround,
+            leadsInnerQuarterCircleLeft,
+            leadsTwoThreesToTheLeft,
         ]))
 
 export const dances = {

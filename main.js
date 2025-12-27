@@ -42,7 +42,9 @@ import {
     clapTwice,
     followsTwoThreesToTheLeftWhileTurningAround,
     leadsTwoThreesToTheLeftWhileTurningAround,
-    leadsTwoThreesToTheRightWhileTurningAround, followsTwoThreesToTheRightWhileTurningAround
+    leadsTwoThreesToTheRightWhileTurningAround,
+    followsTwoThreesToTheRightWhileTurningAround,
+    turnPartnerHalfwayByTheRightEndFacingCenter, turnPartnerHalfwayByTheLeftEndFacingCenter
 } from "./moves.js";
 import {dances} from "./dances.js";
 import {DanceMaster} from "./danceMaster.js";
@@ -83,6 +85,8 @@ window.onload = async () => {
         { name: 'followsTurnAround', func: followsTurnAround },
         { name: 'allTurnAround', func: allTurnAround },
         { name: 'turnPartnerHalfwayByTheRight', func: turnPartnerHalfwayByTheRight },
+        { name: 'turnPartnerHalfwayByTheRightEndFacingCenter', func: turnPartnerHalfwayByTheRightEndFacingCenter },
+        { name: 'turnPartnerHalfwayByTheLeftEndFacingCenter', func: turnPartnerHalfwayByTheLeftEndFacingCenter },
         { name: 'turnPartnerHalfwayByTheLeft', func: turnPartnerHalfwayByTheLeft },
         { name: 'sidestepRight', func: sidestepRight },
         { name: 'sidestepLeft', func: sidestepLeft },

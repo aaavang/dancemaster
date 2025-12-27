@@ -378,7 +378,7 @@ function calculateRotation(state, dancer, nextPositionName, direction) {
 }
 
 function calculateRotationToFacePosition(state, startingPositionName, targetPositionName, direction, dancer) {
-    const dancerTransform = getDancerTransformValues(dancer)
+    const dancerTransform = getTranslation(dancer)
     const startingPosition = startingPositionName === Positions.OUT_OF_POSITION ? {
         x: dancerTransform.x + positions[state.formation][dancer.role].x,
         y: dancerTransform.y + positions[state.formation][dancer.role].y
@@ -982,9 +982,10 @@ const sidestep = async (danceMaster, direction) => {
  * Helper move to turn your partner a specific direction
  * @param danceMaster
  * @param direction
+ * @param endFacingCenter
  * @returns {Promise<Awaited<unknown>[]>}
  */
-const turnPartnerHalfway = async (danceMaster, direction) => {
+const turnPartnerHalfway = async (danceMaster, direction, endFacingCenter = false, snapToPosition = true) => {
     updateHeader(`Turn Partner Halfway ${direction}`)
     const state = danceMaster.state
 
@@ -995,7 +996,7 @@ const turnPartnerHalfway = async (danceMaster, direction) => {
         const partnerPositionName = danceMaster.getPositionNameFromRelationship(dancer.currentNamedPosition, Relationships.PARTNER)
         const currentPosition = positions[state.formation][dancer.currentNamedPosition]
         const partnerPosition = positions[state.formation][partnerPositionName]
-        const currentOffsets = getTranslation(dancer)
+        const currentOffsets = snapToPosition && dancer.currentNamedPosition === dancer.role ? {x: 0, y:0} : getTranslation(dancer)
 
         const halfwayPoint = {
             x: (currentPosition.x + partnerPosition.x) / 2,
@@ -1041,7 +1042,7 @@ const turnPartnerHalfway = async (danceMaster, direction) => {
 
         timelines.push(timeline)
 
-        const newRotation = dancer.currentOffset.rotation += (direction === Directions.RIGHT ? 180 : -180)
+        const newRotation = endFacingCenter ? positions[state.formation][partnerPositionName].rotation : dancer.currentOffset.rotation += (direction === Directions.RIGHT ? 180 : -180)
         const arrowTimeline = anime.timeline({
             duration: 2 * BEATS,
             easing: 'linear',
@@ -1109,16 +1110,21 @@ const turnAround = async (danceMaster, activeRoles) => {
 /**
  * Move to swing partner
  * @param danceMaster
+ * @param endFacingCenter
  * @returns {Promise<void>}
  */
-export const swingPartner = async (danceMaster) => {
+export const swingPartner = async (danceMaster, endFacingCenter = false) => {
     updateHeader('Swing Partner')
     freezeHeader()
     await turnPartnerHalfway(danceMaster, Directions.RIGHT)
     await turnPartnerHalfway(danceMaster, Directions.RIGHT)
     await turnPartnerHalfway(danceMaster, Directions.RIGHT)
-    await turnPartnerHalfway(danceMaster, Directions.RIGHT)
+    await turnPartnerHalfway(danceMaster, Directions.RIGHT, endFacingCenter)
     unfreezeHeader()
+}
+
+export const swingPartnerEndFacingCenter = async (danceMaster) => {
+    return swingPartner(danceMaster, true)
 }
 
 export const quarterHouse = async (danceMaster, direction) => {
@@ -1241,18 +1247,7 @@ export const quarterHouse = async (danceMaster, direction) => {
     return Promise.all(timelines.map(timeline => timeline.finished))
 }
 
-const getDancerTransformValues = (dancer) => {
-    const transform = dancer.elem.style.transform
-    const transformX = parseInt(transform.match(/translateX\((.+)px\) /)[1])
-    const transformY = parseInt(transform.match(/translateY\((.+)px\)/)[1])
-
-    return {
-        x: transformX,
-        y: transformY
-    }
-}
-
-export const facePosition = (danceMaster, dancer, targetPositionName) => {
+export const facePosition = (danceMaster, dancer, targetPositionName, numBeats = 2) => {
     if (dancer.currentNamedPosition === targetPositionName) {
         return
     }
@@ -1261,7 +1256,7 @@ export const facePosition = (danceMaster, dancer, targetPositionName) => {
 
     const timeline = anime.timeline({
         targets: dancer.arrowId,
-        duration: 2 * BEATS,
+        duration: numBeats * BEATS,
         easing: 'linear',
         autoplay: false
     })
@@ -1303,6 +1298,41 @@ const goToPosition = (danceMaster, dancer, targetPositionName) => {
     timeline.play()
 
     return timeline.finished
+}
+
+export const followsGoHome = async (danceMaster) => {
+    let timelines = []
+    for (const dancer of Object.values(danceMaster.state.dancers)) {
+        if (DancerLayouts[danceMaster.state.formation].indexOf(dancer.currentNamedPosition) % 2 === 0) {
+            // skip leads
+            continue
+        }
+        dancer.turnedAround = false
+    }
+
+    for (const dancer of Object.values(danceMaster.state.dancers)) {
+        if (DancerLayouts[danceMaster.state.formation].indexOf(dancer.currentNamedPosition) % 2 === 0) {
+            // skip leads
+            continue
+        }
+        timelines.push(facePosition(danceMaster, dancer, dancer.role, 1))
+    }
+    await Promise.all(timelines)
+    timelines = []
+
+    for (const dancer of Object.values(danceMaster.state.dancers)) {
+        if (DancerLayouts[danceMaster.state.formation].indexOf(dancer.currentNamedPosition) % 2 === 0) {
+            // skip leads
+            continue
+        }
+        timelines.push(goToPosition(danceMaster, dancer, dancer.role))
+    }
+    await Promise.all(timelines)
+    for (const dancer of Object.values(danceMaster.state.dancers)) {
+        danceMaster.normalizeDancerRotations()
+    }
+
+    await faceCenter(danceMaster, false)
 }
 
 export const goHome = async (danceMaster) => {
@@ -1353,7 +1383,7 @@ export const mingle = async (danceMaster) => {
         const timelines = []
         for (const dancer of Object.values(danceMaster.state.dancers)) {
             dancer.currentNamedPosition = Positions.OUT_OF_POSITION
-            const currentOffsets = getDancerTransformValues(dancer)
+            const currentOffsets = getTranslation(dancer)
             const currentPosition = {
                 x: currentOffsets.x + positions[danceMaster.state.formation][dancer.role].x,
                 y: currentOffsets.y + positions[danceMaster.state.formation][dancer.role].y
@@ -1417,11 +1447,17 @@ export const leadsTurnAround = (danceMaster) => turnAround(danceMaster, "LEADS")
 export const followsTurnAround = (danceMaster) => turnAround(danceMaster, "FOLLOWS");
 export const allTurnAround = (danceMaster) => turnAround(danceMaster, "ALL");
 export const turnPartnerHalfwayByTheRight = (danceMaster) => turnPartnerHalfway(danceMaster, Directions.RIGHT);
+export const turnPartnerHalfwayByTheRightEndFacingCenter = (danceMaster) => turnPartnerHalfway(danceMaster, Directions.RIGHT, true);
 export const turnPartnerHalfwayByTheLeft = (danceMaster) => turnPartnerHalfway(danceMaster, Directions.LEFT);
+export const turnPartnerHalfwayByTheLeftEndFacingCenter = (danceMaster) => turnPartnerHalfway(danceMaster, Directions.LEFT, true);
 export const sidestepRight = (danceMaster) => sidestep(danceMaster, Directions.RIGHT);
 export const sidestepLeft = (danceMaster) => sidestep(danceMaster, Directions.LEFT);
 export const twoThreesToTheRight = (danceMaster) => twoThrees(danceMaster, Directions.RIGHT);
 export const twoThreesToTheLeft = (danceMaster) => twoThrees(danceMaster, Directions.LEFT);
+export const followsTwoThreesToTheRight = (danceMaster) => twoThrees(danceMaster, Directions.RIGHT, Roles.FOLLOW);
+export const leadsTwoThreesToTheRight = (danceMaster) => twoThrees(danceMaster, Directions.RIGHT, Roles.LEAD);
+export const followsTwoThreesToTheLeft = (danceMaster) => twoThrees(danceMaster, Directions.LEFT, Roles.FOLLOW);
+export const leadsTwoThreesToTheLeft = (danceMaster) => twoThrees(danceMaster, Directions.LEFT, Roles.LEAD);
 export const followsTwoThreesToTheLeftWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.LEFT, Roles.FOLLOW), followsTurnAround(danceMaster)]);
 export const leadsTwoThreesToTheLeftWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.LEFT, Roles.LEAD), leadsTurnAround(danceMaster)]);
 export const followsTwoThreesToTheRightWhileTurningAround = (danceMaster) => Promise.all([twoThrees(danceMaster, Directions.RIGHT, Roles.FOLLOW), followsTurnAround(danceMaster)]);
