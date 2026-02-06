@@ -9,12 +9,14 @@
     "preview": "vite preview",
     "lint": "eslint src/",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "animejs": "3.2.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/animejs": "^3.1.13",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
