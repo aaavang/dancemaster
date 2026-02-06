@@ -1,4 +1,4 @@
-import { CeiliDance } from '../dance'
+import { CeiliDance } from './dance'
 import {
   Moves,
   advanceAndRetire,

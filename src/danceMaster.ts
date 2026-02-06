@@ -1,19 +1,8 @@
-import { goHome, mingle, normalizeRotation, positionManager } from './moves'
-import { DancerLayouts, Directions, FormationGroups, Formations, Positions, Relationships } from './enums'
-import { headerManager } from './header'
+import { goHome, mingle, positionManager } from './moves'
+import { DancerLayouts, Directions, Formations, Positions, Relationships } from './enums'
+import { Dancer } from './dancer'
+import type { HeaderManager } from './header'
 import type { DanceMasterInstance, DanceMasterState, Direction, Formation, MoveFunction, Position, Relationship } from './types'
-
-const DANCER_NAMES = [
-  'Alex', 'Davin', 'Emmalee', 'Justin', 'Grace', 'Danielle', 'Sam', 'Katie',
-  'Paul', 'Stephen', 'Sharon', 'Amy', 'Ed', 'Elaine', 'Elvira', 'Hailey',
-  'Gaby', 'Dawn', 'Tim', 'Liam', 'Emma', 'Noah', 'Olivia', 'Aiden', 'Sophia',
-  'Mason', 'Isabella', 'Lucas', 'Mia', 'Ethan', 'Amelia', 'James', 'Harper',
-  'Benjamin', 'Evelyn', 'Elijah', 'Charlotte', 'William', 'Abigail', 'Alexander',
-  'Ella', 'Henry', 'Chloe', 'Sebastian', 'Madison', 'Jackson', 'Scarlett',
-  'Mateo', 'Aria', 'Daniel', 'Grace', 'Matthew', 'Zoe', 'Joseph', 'Riley',
-  'David', 'Lily', 'Samuel', 'Avery', 'David', 'Victoria', 'John', 'Camila',
-  'Gabriel', 'Penelope', 'Carter', 'Layla', 'Owen', 'Mila', 'Wyatt', 'Ellie', 'Jack',
-]
 
 export class DanceMaster implements DanceMasterInstance {
   state: DanceMasterState
@@ -21,8 +10,9 @@ export class DanceMaster implements DanceMasterInstance {
   minglingTimelinesPromise: Promise<unknown[]> | null
   moveSet: MoveFunction[]
   danceFloor: HTMLDivElement
+  private headerManager: HeaderManager
 
-  constructor(options: { formation: Formation }) {
+  constructor(options: { formation: Formation; danceFloor: HTMLDivElement; headerManager: HeaderManager }) {
     this.state = {
       formation: options.formation,
       dancers: {},
@@ -32,7 +22,8 @@ export class DanceMaster implements DanceMasterInstance {
     this.minglingTimelinesPromise = null
     this.moveSet = []
 
-    this.danceFloor = document.getElementById('dance-floor') as HTMLDivElement
+    this.danceFloor = options.danceFloor
+    this.headerManager = options.headerManager
 
     const centerElem = document.createElement('div')
     centerElem.id = 'center-point'
@@ -65,7 +56,7 @@ export class DanceMaster implements DanceMasterInstance {
   async runMove(move: MoveFunction): Promise<void> {
     if (this.mingling && move !== mingle) {
       this.mingling = false
-      headerManager.update('Stop Mingling')
+      this.headerManager.update('Stop Mingling')
       await this.minglingTimelinesPromise
       await goHome(this)
     }
@@ -73,9 +64,9 @@ export class DanceMaster implements DanceMasterInstance {
       await move(this)
     } catch (e) {
       console.error(e)
-      headerManager.update((e as Error).message)
+      this.headerManager.update((e as Error).message)
       setTimeout(() => {
-        headerManager.clear()
+        this.headerManager.clear()
       }, 2000)
     }
     this.normalizeDancerRotations()
@@ -86,28 +77,24 @@ export class DanceMaster implements DanceMasterInstance {
       await move(this)
       this.normalizeDancerRotations()
     }
-    headerManager.update('Done')
+    this.headerManager.update('Done')
   }
 
   normalizeDancerRotations(): void {
     for (const dancer of Object.values(this.state.dancers)) {
-      const normalizedRotation = normalizeRotation(dancer.arrowElem)
-      dancer.arrowElem.style.transform = `rotate(${normalizedRotation}deg)`
-      dancer.currentOffset.rotation = normalizedRotation
+      dancer.normalizeRotation()
     }
   }
 
   clear(): void {
     for (const dancer of Object.values(this.state.dancers)) {
-      dancer.elem.remove()
+      dancer.remove()
     }
   }
 
   adjustPositions(): void {
     for (const dancer of Object.values(this.state.dancers)) {
-      const position = positionManager.get(this.state.formation, dancer.role)
-      dancer.elem.style.left = `${position.x}px`
-      dancer.elem.style.top = `${position.y}px`
+      dancer.adjustPosition(this.state.formation)
     }
 
     const centerElem = document.getElementById('center-point')!
@@ -117,75 +104,20 @@ export class DanceMaster implements DanceMasterInstance {
 
   async reset(): Promise<void> {
     for (const dancer of Object.values(this.state.dancers)) {
-      const pos = positionManager.get(this.state.formation, dancer.role)
-      dancer.elem.style.left = `${pos.x}px`
-      dancer.elem.style.top = `${pos.y}px`
-      dancer.elem.style.transform = `rotate(${pos.rotation}deg)`
-      dancer.currentNamedPosition = dancer.role
-      dancer.currentOffset = {
-        x: 0,
-        y: 0,
-        rotation: pos.rotation,
-      }
-      dancer.facingPartner = false
-      dancer.turnedAround = false
+      dancer.reset(this.state.formation)
     }
   }
 
   createDancer(color: string, formation: Formation, role: Position): void {
-    const name = DANCER_NAMES[Math.floor(Math.random() * DANCER_NAMES.length)]
-    const pos = positionManager.get(formation, role)
-    const dancerElem = document.createElement('div')
-    dancerElem.id = role
-    dancerElem.classList.add('dancer')
-    dancerElem.style.left = `${pos.x}px`
-    dancerElem.style.top = `${pos.y}px`
-
-    const label = document.createElement('div')
-    label.classList.add('label')
-    label.innerHTML = `${name} <br/> ${role}`
-    dancerElem.appendChild(label)
-
-    const arrow = document.createElement('div')
-    arrow.classList.add('arrow')
-    arrow.id = `arrow-${role}`
-    arrow.innerHTML = '\u2193'
-    arrow.style.backgroundColor = color
-    arrow.style.transform = `rotate(${pos.rotation}deg)`
-    dancerElem.appendChild(arrow)
-    dancerElem.onclick = () => {
-      const partner = this.getPositionNameFromRelationship(role, Relationships.PARTNER)
-      const corner = this.getPositionNameFromRelationship(role, Relationships.CORNER)
-      const contrary = this.getPositionNameFromRelationship(role, Relationships.CONTRARY)
-      const arrowRotation = arrow.style.transform
-      const facingPartner = this.state.dancers[role].facingPartner
-
-      console.log(
-        `My Role: ${role}\nPartner: ${partner}\nCorner: ${corner}\nContrary: ${contrary}\nArrow Rotation: ${arrowRotation}\nFacing Partner: ${facingPartner}`,
-      )
-    }
-
-    this.state.dancers[role] = {
-      name,
+    this.state.dancers[role] = new Dancer(
       color,
-      elem: dancerElem,
+      formation,
       role,
-      targetId: `#${role}`,
-      arrowId: `#${arrow.id}`,
-      arrowElem: arrow,
-      position: pos,
-      currentNamedPosition: role,
-      group: FormationGroups[formation][role],
-      currentOffset: {
-        x: 0,
-        y: 0,
-        rotation: pos.rotation,
-      },
-      facingPartner: false,
-      turnedAround: false,
-    }
-
-    this.danceFloor.appendChild(dancerElem)
+      this.danceFloor,
+      positionManager,
+      this.isLead.bind(this),
+      this.getPositionNameFromRelationship.bind(this),
+    )
   }
 
   getNextPositionNameOfSameRole(direction: Direction, role: Position): Position {

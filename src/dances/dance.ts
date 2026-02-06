@@ -1,5 +1,5 @@
-import type { DanceMasterInstance } from './types'
-import type { Moves } from './moves'
+import type { DanceMasterInstance } from '../types'
+import type { Moves } from '../moves'
 
 export class Dance {
   name: string

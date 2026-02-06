@@ -3,13 +3,12 @@ import {
   BEATS,
   DancerLayouts,
   Positions,
-  getTranslation,
   headerManager,
   makeTickerTimeline,
   positionManager,
 } from './utils'
 import { faceCenter, facePosition } from './facing'
-import type { DanceMasterInstance } from '../types'
+import type { Dancer, DanceMasterInstance, Position } from '../types'
 
 const MINGLE_MAX_DISTANCE = 200
 
@@ -109,7 +108,7 @@ export const clapTwice = async (danceMaster: DanceMasterInstance): Promise<unkno
 
 const goToPosition = (
   danceMaster: DanceMasterInstance,
-  dancer: import('../types').Dancer,
+  dancer: Dancer,
   targetPositionName: string,
 ): Promise<unknown> => {
   const homePosition = positionManager.get(danceMaster.state.formation, dancer.role)
@@ -129,7 +128,7 @@ const goToPosition = (
     translateX: diffX,
     translateY: diffY,
     complete: () => {
-      dancer.currentNamedPosition = targetPositionName as import('../types').Position
+      dancer.currentNamedPosition = targetPositionName as Position
     },
   })
 
@@ -196,14 +195,14 @@ export const randomizeDancerOffsets = (danceMaster: DanceMasterInstance): Promis
   const min = -1
   const max = 1
   for (const dancer of Object.values(danceMaster.state.dancers)) {
-    dancer.currentOffset = {
+    dancer.currentPose = {
       x: (Math.random() * (max - min) + min) * 100,
       y: (Math.random() * (max - min) + min) * 100,
       rotation: Math.random() * 360,
     }
     dancer.currentNamedPosition = Positions.OUT_OF_POSITION
-    dancer.elem.style.transform = `translateX(${dancer.currentOffset.x}px) translateY(${dancer.currentOffset.y}px)`
-    dancer.arrowElem.style.transform = `rotate(${dancer.currentOffset.rotation}deg)`
+    dancer.elem.style.transform = `translateX(${dancer.currentPose.x}px) translateY(${dancer.currentPose.y}px)`
+    dancer.arrowElem.style.transform = `rotate(${dancer.currentPose.rotation}deg)`
   }
   return Promise.resolve()
 }
@@ -215,12 +214,12 @@ export const mingle = async (danceMaster: DanceMasterInstance): Promise<void> =>
     const timelines: anime.AnimeTimelineInstance[] = []
     for (const dancer of Object.values(danceMaster.state.dancers)) {
       dancer.currentNamedPosition = Positions.OUT_OF_POSITION
-      const currentOffsets = getTranslation(dancer)
+      const currentOffsets = dancer.getTranslation()
       const currentPosition = {
         x: currentOffsets.x + positionManager.get(danceMaster.state.formation, dancer.role).x,
         y: currentOffsets.y + positionManager.get(danceMaster.state.formation, dancer.role).y,
       }
-      const currentAngle = dancer.currentOffset.rotation + 90
+      const currentAngle = dancer.currentPose.rotation + 90
       let newAngle = Math.random() * 360
       let distance = Math.random() * MINGLE_MAX_DISTANCE
 
@@ -255,15 +254,15 @@ export const mingle = async (danceMaster: DanceMasterInstance): Promise<void> =>
           translateX: nextPosition.x,
           translateY: nextPosition.y,
           complete: () => {
-            dancer.currentOffset.x = nextPosition.x
-            dancer.currentOffset.y = nextPosition.y
+            dancer.currentPose.x = nextPosition.x
+            dancer.currentPose.y = nextPosition.y
           },
         })
         .add({
           targets: dancer.arrowId,
           rotate: newAngle,
           complete: () => {
-            dancer.currentOffset.rotation = newAngle
+            dancer.currentPose.rotation = newAngle
           },
         })
       timelines.push(timeline)

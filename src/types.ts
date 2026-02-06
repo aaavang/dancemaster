@@ -1,4 +1,5 @@
 import type { Formations, Positions, Directions, Relationships, Role } from './enums'
+import type { Dancer } from './dancer'
 
 export type Formation = (typeof Formations)[keyof typeof Formations]
 export type Position = (typeof Positions)[keyof typeof Positions]
@@ -12,31 +13,11 @@ export interface Point {
   y: number
 }
 
-export interface PositionWithRotation extends Point {
+export interface Pose extends Point {
   rotation: number
 }
 
-export interface DancerOffset {
-  x: number
-  y: number
-  rotation: number
-}
-
-export interface Dancer {
-  name: string
-  color: string
-  elem: HTMLDivElement
-  role: Position
-  targetId: string
-  arrowId: string
-  arrowElem: HTMLDivElement
-  position: PositionWithRotation
-  currentNamedPosition: Position
-  group: GroupName
-  currentOffset: DancerOffset
-  facingPartner: boolean
-  turnedAround: boolean
-}
+export { type Dancer } from './dancer'
 
 export interface DanceMasterState {
   formation: Formation

@@ -71,7 +71,7 @@ export const quarterCircle = async (
           targets: dancer.arrowId,
           rotate: newRotation,
           complete: () => {
-            dancer.currentOffset.rotation = newRotation
+            dancer.currentPose.rotation = newRotation
           },
         })
 
@@ -165,7 +165,7 @@ export const innerQuarterCircle = async (
           targets: dancer.arrowId,
           rotate: newRotation,
           complete: () => {
-            dancer.currentOffset.rotation = newRotation
+            dancer.currentPose.rotation = newRotation
           },
         })
 

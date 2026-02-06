@@ -8,7 +8,7 @@ import {
   headerManager,
   makeTickerTimeline,
 } from './utils'
-import type { DanceMasterInstance, Direction } from '../types'
+import type { Dancer, DanceMasterInstance, Direction, Position } from '../types'
 
 export const facePartner = async (
   danceMaster: DanceMasterInstance,
@@ -27,7 +27,7 @@ export const facePartner = async (
           Relationships.PARTNER,
         )
         const rotation = calculateShortestTurnRotation(dancer, partnerPositionName, state, overrideTurnDirection)
-        if (rotation % 360 === dancer.currentOffset.rotation % 360) {
+        if (rotation % 360 === dancer.currentPose.rotation % 360) {
           continue
         }
 
@@ -41,7 +41,7 @@ export const facePartner = async (
           targets: dancer.arrowId,
           rotate: rotation,
           complete: () => {
-            dancer.currentOffset.rotation = rotation
+            dancer.currentPose.rotation = rotation
             dancer.facingPartner = true
           },
         })
@@ -79,7 +79,7 @@ export const faceCenter = async (
         )
         const rotation = calculateShortestTurnRotation(dancer, opposite, state, overrideTurnDirection)
 
-        if (rotation % 360 === dancer.currentOffset.rotation % 360) {
+        if (rotation % 360 === dancer.currentPose.rotation % 360) {
           continue
         }
 
@@ -93,7 +93,7 @@ export const faceCenter = async (
           targets: dancer.arrowId,
           rotate: rotation,
           complete: () => {
-            dancer.currentOffset.rotation = rotation
+            dancer.currentPose.rotation = rotation
             dancer.facingPartner = false
           },
         })
@@ -115,7 +115,7 @@ export const faceCenter = async (
 
 export const facePosition = (
   danceMaster: DanceMasterInstance,
-  dancer: { currentNamedPosition: string; arrowId: string; currentOffset: { rotation: number } },
+  dancer: Dancer,
   targetPositionName: string,
   numBeats = 2,
 ): Promise<unknown> | undefined => {
@@ -124,8 +124,8 @@ export const facePosition = (
   }
 
   const rotation = calculateShortestTurnRotation(
-    dancer as import('../types').Dancer,
-    targetPositionName as import('../types').Position,
+    dancer,
+    targetPositionName as Position,
     danceMaster.state,
   )
 
@@ -139,7 +139,7 @@ export const facePosition = (
   timeline.add({
     rotate: rotation,
     complete: () => {
-      dancer.currentOffset.rotation = rotation
+      dancer.currentPose.rotation = rotation
     },
   })
 
@@ -171,9 +171,9 @@ export const turnAround = async (
     })
 
     timeline.add({
-      rotate: dancer.currentOffset.rotation + 180,
+      rotate: dancer.currentPose.rotation + 180,
       complete: () => {
-        dancer.currentOffset.rotation += 180
+        dancer.currentPose.rotation += 180
         dancer.turnedAround = !dancer.turnedAround
       },
     })

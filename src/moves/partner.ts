@@ -5,7 +5,6 @@ import {
   FormationGroups,
   Formations,
   Positions,
-  getTranslation,
   headerManager,
   makeTickerTimeline,
   positionManager,
@@ -180,7 +179,7 @@ const turnPartnerHalfway = async (
     const currentOffsets =
       snapToPosition && dancer.currentNamedPosition === dancer.role
         ? { x: 0, y: 0 }
-        : getTranslation(dancer)
+        : dancer.getTranslation()
 
     const halfwayPoint = {
       x: (currentPosition.x + partnerPosition.x) / 2,
@@ -245,7 +244,7 @@ const turnPartnerHalfway = async (
 
     const newRotation = endFacingCenter
       ? positionManager.get(state.formation, partnerPositionName).rotation
-      : (dancer.currentOffset.rotation += direction === Directions.RIGHT ? 180 : -180)
+      : (dancer.currentPose.rotation += direction === Directions.RIGHT ? 180 : -180)
     const arrowTimeline = anime.timeline({
       duration: 2 * BEATS,
       easing: 'linear',
@@ -256,7 +255,7 @@ const turnPartnerHalfway = async (
       targets: dancer.arrowId,
       rotate: newRotation,
       complete: () => {
-        dancer.currentOffset.rotation = newRotation
+        dancer.currentPose.rotation = newRotation
       },
     })
 

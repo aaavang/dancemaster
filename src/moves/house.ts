@@ -5,12 +5,11 @@ import {
   Directions,
   FormationGroups,
   calculateAngleAndRotation,
-  getTranslation,
   headerManager,
   makeTickerTimeline,
   positionManager,
 } from './utils'
-import type { DanceMasterInstance, Direction } from '../types'
+import type { DanceMasterInstance, Direction, Position } from '../types'
 
 export const quarterHouse = async (
   danceMaster: DanceMasterInstance,
@@ -69,7 +68,7 @@ export const quarterHouse = async (
       const nextPositionName = danceMaster.getNextPositionNameOfSameRole(direction, movingDancer.currentNamedPosition)
       const partnerNextPositionName = danceMaster.getNextPositionNameOfSameRole(direction, partner.currentNamedPosition)
       const nextPosition = positionManager.get(state.formation, nextPositionName)
-      const movingCurrentOffsets = getTranslation(movingDancer)
+      const movingCurrentOffsets = movingDancer.getTranslation()
 
       const translateX = movingCurrentOffsets.x + (nextPosition.x - currentPosition.x)
       const translateY = movingCurrentOffsets.y + (nextPosition.y - currentPosition.y)
@@ -105,9 +104,9 @@ export const quarterHouse = async (
 
       const intermediateAngleAndRotation = calculateAngleAndRotation(
         state,
-        movingDancer.currentOffset.rotation,
-        intermediateStartPosition as import('../types').Position,
-        intermediateTargetPosition as import('../types').Position,
+        movingDancer.currentPose.rotation,
+        intermediateStartPosition as Position,
+        intermediateTargetPosition as Position,
         direction,
         movingDancer,
       )
@@ -116,15 +115,15 @@ export const quarterHouse = async (
         targets: movingDancer.arrowId,
         rotate: intermediateAngleAndRotation.rotation,
         complete: () => {
-          movingDancer.currentOffset.rotation = intermediateAngleAndRotation.rotation
+          movingDancer.currentPose.rotation = intermediateAngleAndRotation.rotation
         },
       })
 
       const finalAngleAndRotation = calculateAngleAndRotation(
         state,
         intermediateAngleAndRotation.rotation,
-        nextPositionName as import('../types').Position,
-        partnerNextPositionName as import('../types').Position,
+        nextPositionName as Position,
+        partnerNextPositionName as Position,
         direction,
         movingDancer,
       )
@@ -132,7 +131,7 @@ export const quarterHouse = async (
       movingTimeline.add({
         rotate: finalAngleAndRotation.rotation,
         complete: () => {
-          movingDancer.currentOffset.rotation = finalAngleAndRotation.rotation
+          movingDancer.currentPose.rotation = finalAngleAndRotation.rotation
         },
       })
 

@@ -7,43 +7,20 @@ import {
   Formations,
   Positions,
 } from '../enums'
-import type { Dancer, DanceMasterState, Direction, Point, Position, PositionWithRotation } from '../types'
+import type { Dancer, DanceMasterState, Direction, Point, Position, Pose } from '../types'
 
 export const HEADER_OFFSET = 100
 export const INNER_CIRCLE_OFFSET = 100
 
-export const normalizeRotation = (arrow: HTMLDivElement): number => {
-  const match = arrow.style.transform.match(/rotate\((.+)deg\)/)
-  let rotation = parseInt(match![1])
-  rotation = rotation % 360
-  if (rotation < 0) {
-    rotation += 360
-  }
-  return rotation
-}
-
-export const getFacingDirection = (dancer: Dancer): Direction => {
-  const rotation = normalizeRotation(dancer.arrowElem)
-  if (rotation >= 46 && rotation < 135) {
-    return Directions.LEFT
-  } else if (rotation >= 135 && rotation < 225) {
-    return Directions.UP
-  } else if (rotation >= 225 && rotation < 315) {
-    return Directions.RIGHT
-  } else {
-    return Directions.DOWN
-  }
-}
-
 export class PositionManager {
   private _center: Point = { x: 0, y: 0 }
-  private _formations: Record<string, Record<string, PositionWithRotation>> = {}
+  private _formations: Record<string, Record<string, Pose>> = {}
 
   get center(): Point {
     return this._center
   }
 
-  get(formation: string, position: string): PositionWithRotation {
+  get(formation: string, position: string): Pose {
     return this._formations[formation][position]
   }
 
@@ -127,29 +104,6 @@ export class PositionManager {
 export const positionManager = new PositionManager()
 positionManager.recalculate(window.innerWidth, window.innerHeight)
 
-export const getTranslation = (dancer: Dancer): Point => {
-  const style = window.getComputedStyle(dancer.elem)
-  const transform = style.transform
-
-  if (transform === 'none' || !transform) {
-    return { x: 0, y: 0 }
-  }
-
-  const matrixMatch = transform.match(/matrix.*\((.+)\)/)
-
-  if (matrixMatch) {
-    const values = matrixMatch[1].split(', ').map(parseFloat)
-
-    if (transform.startsWith('matrix3d')) {
-      return { x: values[12], y: values[13] }
-    } else {
-      return { x: values[4], y: values[5] }
-    }
-  }
-
-  return { x: 0, y: 0 }
-}
-
 export function makeTickerTimeline(numOfBeats: number): anime.AnimeTimelineInstance {
   const tickerTimeline = anime.timeline({
     duration: BEATS,
@@ -209,7 +163,7 @@ export function calculateRotation(
   nextPositionName: Position,
   direction: Direction,
 ): number {
-  const currentRotation = dancer.currentOffset.rotation
+  const currentRotation = dancer.currentPose.rotation
   const nextRotation = positionManager.get(state.formation, nextPositionName).rotation
   let difference = Math.abs(nextRotation - currentRotation) % 360
   if (difference > 180) {
@@ -225,7 +179,7 @@ function calculateRotationToFacePosition(
   direction: Direction,
   dancer: Dancer,
 ): number {
-  const dancerTransform = getTranslation(dancer)
+  const dancerTransform = dancer.getTranslation()
   const startingPosition =
     startingPositionName === Positions.OUT_OF_POSITION
       ? {
@@ -259,8 +213,8 @@ function findShortestRotation(
   rotationLeft: { rotation: number },
   overrideTurnDirection?: Direction,
 ): number {
-  const differenceRight = Math.abs(rotationRight.rotation - dancer.currentOffset.rotation) % 360
-  const differenceLeft = Math.abs(rotationLeft.rotation - dancer.currentOffset.rotation) % 360
+  const differenceRight = Math.abs(rotationRight.rotation - dancer.currentPose.rotation) % 360
+  const differenceLeft = Math.abs(rotationLeft.rotation - dancer.currentPose.rotation) % 360
 
   let rotation: number
   if (differenceLeft < differenceRight) {
@@ -285,7 +239,7 @@ export function calculateShortestTurnRotation(
 ): number {
   const rotationRight = calculateAngleAndRotation(
     state,
-    dancer.currentOffset.rotation,
+    dancer.currentPose.rotation,
     dancer.currentNamedPosition,
     targetPositionName,
     Directions.RIGHT,
@@ -293,7 +247,7 @@ export function calculateShortestTurnRotation(
   )
   const rotationLeft = calculateAngleAndRotation(
     state,
-    dancer.currentOffset.rotation,
+    dancer.currentPose.rotation,
     dancer.currentNamedPosition,
     targetPositionName,
     Directions.LEFT,

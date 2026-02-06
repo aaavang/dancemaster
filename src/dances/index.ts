@@ -1,6 +1,7 @@
 import { Formations } from '../enums'
 import type { Formation } from '../types'
-import type { CeiliDance, FigureDance } from '../dance'
+export { Dance, CeiliDance, FigureDance } from './dance'
+import type { CeiliDance, FigureDance } from './dance'
 
 export { threeTunes } from './threeTunes'
 export { bonfireDance } from './bonfireDance'

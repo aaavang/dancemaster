@@ -1,4 +1,4 @@
-import { FigureDance } from '../dance'
+import { FigureDance } from './dance'
 import {
   Moves,
   quarterCircleLeft,

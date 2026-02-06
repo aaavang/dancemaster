@@ -3,8 +3,6 @@ import { Role } from '../enums'
 import {
   BEATS,
   Directions,
-  getFacingDirection,
-  getTranslation,
   headerManager,
   makeTickerTimeline,
 } from './utils'
@@ -27,8 +25,8 @@ export const sidestep = async (
       easing: 'linear',
       autoplay: false,
     })
-    const currentOffsets = getTranslation(dancer)
-    const directionFacing = getFacingDirection(dancer)
+    const currentOffsets = dancer.getTranslation()
+    const directionFacing = dancer.getFacingDirection()
     let xOffset = currentOffsets.x
     let yOffset = currentOffsets.y
 
@@ -88,8 +86,8 @@ export const twoThrees = async (
       autoplay: false,
     })
 
-    const currentOffsets = getTranslation(dancer)
-    const currentDirection = getFacingDirection(dancer)
+    const currentOffsets = dancer.getTranslation()
+    const currentDirection = dancer.getFacingDirection()
 
     let firstTranslateX = currentOffsets.x
     let secondTranslateX = currentOffsets.x

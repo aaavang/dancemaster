@@ -50,13 +50,18 @@ import {
 } from './moves'
 import { dances } from './dances'
 import { DanceMaster } from './danceMaster'
-import type { Formation, MoveFunction } from './types'
+import { headerManager } from './header'
+import type { DanceMasterInstance, Formation, MoveFunction } from './types'
 
 let danceMaster: DanceMaster | undefined
 
 window.onload = async () => {
+  const danceFloor = document.getElementById('dance-floor') as HTMLDivElement
+
   danceMaster = new DanceMaster({
     formation: Formations.EIGHT_HAND_SQUARE,
+    danceFloor,
+    headerManager,
   })
 
   window.addEventListener('resize', function () {
@@ -148,13 +153,16 @@ window.onload = async () => {
 }
 
 const resetDanceMaster = (formation: Formation): void => {
+  const danceFloor = danceMaster!.danceFloor
   danceMaster!.clear()
   danceMaster = new DanceMaster({
     formation,
+    danceFloor,
+    headerManager,
   })
 }
 
-const performDance = async (dance: { formation: Formation; executor: { do: (dm: import('./types').DanceMasterInstance) => Promise<void> } }): Promise<void> => {
+const performDance = async (dance: { formation: Formation; executor: { do: (dm: DanceMasterInstance) => Promise<void> } }): Promise<void> => {
   danceMaster!.mingling = false
   resetDanceMaster(dance.formation)
   await goHome(danceMaster!)
