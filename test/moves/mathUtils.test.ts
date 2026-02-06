@@ -5,10 +5,10 @@ import {
   positionManager,
   PositionManager,
   INNER_CIRCLE_OFFSET,
-} from './utils'
-import { Formations, Positions, Directions } from '../enums'
-import { Dancer } from '../dancer'
-import type { DanceMasterState } from '../types'
+} from '../../src/moves/utils'
+import { Formations, Positions, Directions } from '../../src/enums'
+import { Dancer } from '../../src/dancer'
+import type { DanceMasterState } from '../../src/types'
 
 function mockArrow(degrees: number): HTMLDivElement {
   const el = document.createElement('div')

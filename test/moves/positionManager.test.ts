@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { PositionManager, HEADER_OFFSET } from './utils'
-import { Formations, Positions } from '../enums'
+import { PositionManager, HEADER_OFFSET } from '../../src/moves/utils'
+import { Formations, Positions } from '../../src/enums'
 
 describe('PositionManager', () => {
   let pm: PositionManager

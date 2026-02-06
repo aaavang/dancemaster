@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { HeaderManager } from './header'
+import { HeaderManager } from '../src/header'
 
 describe('HeaderManager', () => {
   let el: HTMLDivElement

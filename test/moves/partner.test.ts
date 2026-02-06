@@ -1,18 +1,18 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-vi.mock('../header', async (importOriginal) => {
-  const mod = await importOriginal<typeof import('../header')>()
+vi.mock('../../src/header', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('../../src/header')>()
   return {
     ...mod,
     headerManager: new mod.HeaderManager(document.createElement('div')),
   }
 })
 
-import { switchWithPartner } from './partner'
-import { positionManager } from './utils'
-import { DanceMaster } from '../danceMaster'
-import { HeaderManager } from '../header'
-import { Formations, Positions } from '../enums'
+import { switchWithPartner } from '../../src/moves/partner'
+import { positionManager } from '../../src/moves/utils'
+import { DanceMaster } from '../../src/danceMaster'
+import { HeaderManager } from '../../src/header'
+import { Formations, Positions } from '../../src/enums'
 
 describe('switchWithPartner', () => {
   let danceMaster: DanceMaster
