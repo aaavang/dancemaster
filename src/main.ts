@@ -164,6 +164,8 @@ window.onload = async () => {
       { name: 'leadsInnerQuarterCircleLeftEndHome', func: leadsInnerQuarterCircleLeftEndHome },
       { name: 'followsInnerQuarterCircleRightEndHome', func: followsInnerQuarterCircleRightEndHome },
       { name: 'followsInnerQuarterCircleLeftEndHome', func: followsInnerQuarterCircleLeftEndHome },
+    ],
+    'moves-chain': [
       { name: 'fullChain', func: fullChain },
     ],
     'moves-facing': [
