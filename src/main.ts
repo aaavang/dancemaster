@@ -74,9 +74,22 @@ window.onload = async () => {
   const panelToggle = document.getElementById('panel-toggle')!
   const controls = document.getElementById('controls')!
 
+  const closePanel = () => {
+    controls.classList.remove('panel-open')
+    panelToggle.innerHTML = '&#9776;'
+  }
+
   panelToggle.addEventListener('click', () => {
     const isOpen = controls.classList.toggle('panel-open')
     panelToggle.innerHTML = isOpen ? '&#10005;' : '&#9776;'
+  })
+
+  // Close panel when any action button is clicked (not accordion headers)
+  controls.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (target.tagName === 'BUTTON' && !target.classList.contains('accordion-header')) {
+      closePanel()
+    }
   })
 
   // Default panel state based on viewport
