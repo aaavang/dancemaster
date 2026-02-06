@@ -313,9 +313,11 @@ export const fullChain = async (danceMaster: DanceMasterInstance): Promise<void>
 
       timelines.push(timeline)
 
-      // Face the direction of travel
-      const dx = nextPosition.x - currentPosition.x
-      const dy = nextPosition.y - currentPosition.y
+      // Face the next person to swap with
+      const nextSwapPositionName = danceMaster.getNextPosition(advanceDirection, nextPositionName)
+      const nextSwapPosition = positionManager.get(state.formation, nextSwapPositionName)
+      const dx = nextSwapPosition.x - nextPosition.x
+      const dy = nextSwapPosition.y - nextPosition.y
       const targetAngle = ((Math.atan2(dy, dx) * 180) / Math.PI + 270) % 360
 
       // Find shortest rotation path from current rotation

@@ -136,7 +136,6 @@ window.onload = async () => {
     const button = document.createElement('button')
     button.innerHTML = move.name
     button.onclick = () => {
-      danceMaster!.mingling = false
       danceMaster!.runMove(move.func)
     }
     movesButtons.appendChild(button)
