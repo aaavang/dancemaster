@@ -40,6 +40,7 @@ import {
   leadsInnerQuarterCircleLeftEndHome,
   followsInnerQuarterCircleRightEndHome,
   followsInnerQuarterCircleLeftEndHome,
+  fullChain,
   clapTwice,
   followsTwoThreesToTheLeftWhileTurningAround,
   leadsTwoThreesToTheLeftWhileTurningAround,
@@ -127,6 +128,7 @@ window.onload = async () => {
     { name: 'leadsInnerQuarterCircleLeftEndHome', func: leadsInnerQuarterCircleLeftEndHome },
     { name: 'followsInnerQuarterCircleRightEndHome', func: followsInnerQuarterCircleRightEndHome },
     { name: 'followsInnerQuarterCircleLeftEndHome', func: followsInnerQuarterCircleLeftEndHome },
+    { name: 'fullChain', func: fullChain },
     { name: 'clapTwice', func: clapTwice },
   ]
 
@@ -134,6 +136,7 @@ window.onload = async () => {
     const button = document.createElement('button')
     button.innerHTML = move.name
     button.onclick = () => {
+      danceMaster!.mingling = false
       danceMaster!.runMove(move.func)
     }
     movesButtons.appendChild(button)
