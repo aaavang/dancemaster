@@ -1,0 +1,60 @@
+import { CeiliDance } from '../dance'
+import {
+  Moves,
+  advanceAndRetire,
+  quarterCircleRight,
+  twoThreesToTheRight,
+  quarterCircleLeft,
+  twoThreesToTheLeft,
+  twoThreesToTheRightEndFacingPartner,
+  sidestepRight,
+  turnPartnerHalfwayByTheRight,
+  turnPartnerHalfwayByTheLeft,
+  sidestepLeft,
+  faceCenter,
+  followsInnerQuarterCircleRight,
+  followsTwoThreesToTheRightWhileTurningAround,
+  followsTwoThreesToTheRight,
+  followsTurnAround,
+  leadsInnerQuarterCircleLeft,
+  leadsTwoThreesToTheLeftWhileTurningAround,
+  leadsTwoThreesToTheLeft,
+} from '../moves'
+import type { DanceMasterInstance, MoveFunction } from '../types'
+
+export const bonfireDance = new CeiliDance('Bonfire Dance').withMoves(
+  new Moves([
+    advanceAndRetire,
+    advanceAndRetire,
+    quarterCircleRight,
+    twoThreesToTheRight,
+    quarterCircleLeft,
+    twoThreesToTheLeft,
+    advanceAndRetire,
+    advanceAndRetire,
+    quarterCircleLeft,
+    twoThreesToTheLeft,
+    quarterCircleRight,
+    twoThreesToTheRightEndFacingPartner,
+
+    sidestepRight,
+    turnPartnerHalfwayByTheRight,
+    turnPartnerHalfwayByTheLeft,
+    sidestepLeft,
+    turnPartnerHalfwayByTheLeft,
+    turnPartnerHalfwayByTheRight,
+    faceCenter,
+
+    followsInnerQuarterCircleRight,
+    followsTwoThreesToTheRightWhileTurningAround,
+    followsInnerQuarterCircleRight,
+    followsTwoThreesToTheRight,
+    turnPartnerHalfwayByTheRight,
+    turnPartnerHalfwayByTheRight,
+    (dancemaster: DanceMasterInstance) =>
+      Promise.all([followsTurnAround(dancemaster), leadsInnerQuarterCircleLeft(dancemaster)]),
+    leadsTwoThreesToTheLeftWhileTurningAround,
+    leadsInnerQuarterCircleLeft,
+    leadsTwoThreesToTheLeft,
+  ] as MoveFunction[]),
+)

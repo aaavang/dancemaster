@@ -83,13 +83,6 @@ body {
     background-color: black;
 }
 
-.point {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: red;
-}
-
 .label {
     text-align: center;
 }
