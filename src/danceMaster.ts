@@ -28,8 +28,8 @@ export class DanceMaster implements DanceMasterInstance {
     const centerElem = document.createElement('div')
     centerElem.id = 'center-point'
     this.danceFloor.appendChild(centerElem)
-    centerElem.style.left = `${positionManager.center.x - 5}px`
-    centerElem.style.top = `${positionManager.center.y - 5}px`
+    centerElem.style.left = `${window.innerWidth / 2 - 5}px`
+    centerElem.style.top = `${window.innerHeight / 2 - 5}px`
 
     switch (options.formation) {
       case Formations.EIGHT_HAND_SQUARE:
@@ -98,8 +98,8 @@ export class DanceMaster implements DanceMasterInstance {
     }
 
     const centerElem = document.getElementById('center-point')!
-    centerElem.style.left = `${positionManager.center.x - 5}px`
-    centerElem.style.top = `${positionManager.center.y - 5}px`
+    centerElem.style.left = `${window.innerWidth / 2 - 5}px`
+    centerElem.style.top = `${window.innerHeight / 2 - 5}px`
   }
 
   async reset(): Promise<void> {

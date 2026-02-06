@@ -36,7 +36,7 @@ export class PositionManager {
 
     this._center = {
       x: width / 2,
-      y: height / 2 + HEADER_OFFSET * sf,
+      y: height / 2,
     }
 
     const center = this._center

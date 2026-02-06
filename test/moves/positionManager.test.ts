@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { PositionManager, HEADER_OFFSET } from '../../src/moves/utils'
+import { PositionManager } from '../../src/moves/utils'
 import { Formations, Positions } from '../../src/enums'
 
 describe('PositionManager', () => {
@@ -10,10 +10,8 @@ describe('PositionManager', () => {
     pm.recalculate(1000, 800)
   })
 
-  it('recalculate() computes center with HEADER_OFFSET', () => {
-    const sf = pm.scaleFactor
-    expect(pm.center).toEqual({ x: 500, y: 400 + HEADER_OFFSET * sf })
-    expect(HEADER_OFFSET).toBe(100)
+  it('recalculate() computes center at true midpoint', () => {
+    expect(pm.center).toEqual({ x: 500, y: 400 })
   })
 
   it('get() returns correct position for FIRST_TOP_LEAD', () => {
@@ -84,7 +82,7 @@ describe('PositionManager', () => {
 
     const sf2 = pm.scaleFactor
     const center2 = pm.center
-    expect(center2).toEqual({ x: 600, y: 500 + HEADER_OFFSET * sf2 })
+    expect(center2).toEqual({ x: 600, y: 500 })
     const posAfter = pm.get(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_TOP_LEAD)
     expect(posAfter.x).toBe(center2.x + 25 * sf2)
     expect(posAfter.y).toBe(center2.y - 250 * sf2)
