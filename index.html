@@ -7,17 +7,40 @@
     <title>Dance Master</title>
 </head>
 <body>
+<button id="panel-toggle" aria-label="Toggle controls panel">&#9776;</button>
 <div id="controls">
-    <div class="control-group-container">
-        <div class="control-group">
-            <pre>Formations</pre>
+    <div class="panel-content">
+        <div class="control-section">
+            <label>Formations</label>
             <div id="formations"></div>
-            <pre>Dances</pre>
+        </div>
+        <div class="control-section">
+            <label>Dances</label>
             <div id="dances"></div>
         </div>
-        <div class="control-group">
-            <pre>Moves</pre>
-            <div id="moves"></div>
+        <div class="accordion-section">
+            <button class="accordion-header">Special</button>
+            <div class="accordion-body" id="moves-special"></div>
+        </div>
+        <div class="accordion-section">
+            <button class="accordion-header">Partner</button>
+            <div class="accordion-body" id="moves-partner"></div>
+        </div>
+        <div class="accordion-section">
+            <button class="accordion-header">Circle</button>
+            <div class="accordion-body" id="moves-circle"></div>
+        </div>
+        <div class="accordion-section">
+            <button class="accordion-header">Facing</button>
+            <div class="accordion-body" id="moves-facing"></div>
+        </div>
+        <div class="accordion-section">
+            <button class="accordion-header">Steps</button>
+            <div class="accordion-body" id="moves-steps"></div>
+        </div>
+        <div class="accordion-section">
+            <button class="accordion-header">House</button>
+            <div class="accordion-body" id="moves-house"></div>
         </div>
     </div>
 </div>

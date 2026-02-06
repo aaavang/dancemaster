@@ -15,9 +15,14 @@ export const INNER_CIRCLE_OFFSET = 100
 export class PositionManager {
   private _center: Point = { x: 0, y: 0 }
   private _formations: Record<string, Record<string, Pose>> = {}
+  private _scaleFactor: number = 1
 
   get center(): Point {
     return this._center
+  }
+
+  get scaleFactor(): number {
+    return this._scaleFactor
   }
 
   get(formation: string, position: string): Pose {
@@ -25,9 +30,13 @@ export class PositionManager {
   }
 
   recalculate(width: number, height: number): void {
+    const sf = Math.max(0.35, Math.min(width / 1024, height / 768, 1))
+    this._scaleFactor = sf
+    document.documentElement.style.setProperty('--dance-scale', String(sf))
+
     this._center = {
       x: width / 2,
-      y: height / 2 + HEADER_OFFSET,
+      y: height / 2 + HEADER_OFFSET * sf,
     }
 
     const center = this._center
@@ -35,65 +44,65 @@ export class PositionManager {
     this._formations = {
       [Formations.EIGHT_HAND_SQUARE]: {
         [Positions.FIRST_TOP_FOLLOW]: {
-          x: center.x - 125,
-          y: center.y - 250,
+          x: center.x - 125 * sf,
+          y: center.y - 250 * sf,
           rotation: 0,
         },
         [Positions.FIRST_TOP_LEAD]: {
-          x: center.x + 25,
-          y: center.y - 250,
+          x: center.x + 25 * sf,
+          y: center.y - 250 * sf,
           rotation: 0,
         },
         [Positions.SECOND_TOP_FOLLOW]: {
-          x: center.x + 25,
-          y: center.y + 150,
+          x: center.x + 25 * sf,
+          y: center.y + 150 * sf,
           rotation: 180,
         },
         [Positions.SECOND_TOP_LEAD]: {
-          x: center.x - 125,
-          y: center.y + 150,
+          x: center.x - 125 * sf,
+          y: center.y + 150 * sf,
           rotation: 180,
         },
         [Positions.FIRST_SIDE_LEAD]: {
-          x: center.x + 150,
-          y: center.y + 25,
+          x: center.x + 150 * sf,
+          y: center.y + 25 * sf,
           rotation: 90,
         },
         [Positions.FIRST_SIDE_FOLLOW]: {
-          x: center.x + 150,
-          y: center.y - 125,
+          x: center.x + 150 * sf,
+          y: center.y - 125 * sf,
           rotation: 90,
         },
         [Positions.SECOND_SIDE_LEAD]: {
-          x: center.x - 250,
-          y: center.y - 125,
+          x: center.x - 250 * sf,
+          y: center.y - 125 * sf,
           rotation: 270,
         },
         [Positions.SECOND_SIDE_FOLLOW]: {
-          x: center.x - 250,
-          y: center.y + 25,
+          x: center.x - 250 * sf,
+          y: center.y + 25 * sf,
           rotation: 270,
         },
       },
       [Formations.TWO_FACING_TWO]: {
         [Positions.FIRST_TOP_FOLLOW]: {
-          x: center.x - 125,
-          y: center.y - 150,
+          x: center.x - 125 * sf,
+          y: center.y - 150 * sf,
           rotation: 0,
         },
         [Positions.FIRST_TOP_LEAD]: {
-          x: center.x + 25,
-          y: center.y - 150,
+          x: center.x + 25 * sf,
+          y: center.y - 150 * sf,
           rotation: 0,
         },
         [Positions.SECOND_TOP_FOLLOW]: {
-          x: center.x + 25,
-          y: center.y + 50,
+          x: center.x + 25 * sf,
+          y: center.y + 50 * sf,
           rotation: 180,
         },
         [Positions.SECOND_TOP_LEAD]: {
-          x: center.x - 125,
-          y: center.y + 50,
+          x: center.x - 125 * sf,
+          y: center.y + 50 * sf,
           rotation: 180,
         },
       },
@@ -260,7 +269,7 @@ export function calculateShortestTurnRotation(
 export const getInnerCirclePosition = (formation: string, position: Position): Point => {
   const normalPosition = positionManager.get(formation, position)
   const group = FormationGroups[formation][position]
-  const offset = INNER_CIRCLE_OFFSET
+  const offset = INNER_CIRCLE_OFFSET * positionManager.scaleFactor
   switch (group) {
     case 'TOP':
       return { x: normalPosition.x, y: normalPosition.y + offset }

@@ -5,17 +5,19 @@ import {
   Directions,
   headerManager,
   makeTickerTimeline,
+  positionManager,
 } from './utils'
 import { facePartner, leadsTurnAround, followsTurnAround } from './facing'
 import type { DanceMasterInstance, Direction, RoleName } from '../types'
 
-const SIDESTEP_DISTANCE = 100
+const BASE_SIDESTEP_DISTANCE = 100
 
 export const sidestep = async (
   danceMaster: DanceMasterInstance,
   direction: Direction,
 ): Promise<unknown[]> => {
   headerManager.update(`Sidestep ${direction}`)
+  const sidestepDistance = BASE_SIDESTEP_DISTANCE * positionManager.scaleFactor
   const state = danceMaster.state
   const timelines: anime.AnimeTimelineInstance[] = []
   for (const dancer of Object.values(state.dancers)) {
@@ -32,16 +34,16 @@ export const sidestep = async (
 
     switch (directionFacing) {
       case Directions.LEFT:
-        yOffset += direction === Directions.RIGHT ? -SIDESTEP_DISTANCE : SIDESTEP_DISTANCE
+        yOffset += direction === Directions.RIGHT ? -sidestepDistance : sidestepDistance
         break
       case Directions.RIGHT:
-        yOffset += direction === Directions.RIGHT ? SIDESTEP_DISTANCE : -SIDESTEP_DISTANCE
+        yOffset += direction === Directions.RIGHT ? sidestepDistance : -sidestepDistance
         break
       case Directions.UP:
-        xOffset += direction === Directions.RIGHT ? SIDESTEP_DISTANCE : -SIDESTEP_DISTANCE
+        xOffset += direction === Directions.RIGHT ? sidestepDistance : -sidestepDistance
         break
       case Directions.DOWN:
-        xOffset += direction === Directions.RIGHT ? -SIDESTEP_DISTANCE : SIDESTEP_DISTANCE
+        xOffset += direction === Directions.RIGHT ? -sidestepDistance : sidestepDistance
         break
     }
 

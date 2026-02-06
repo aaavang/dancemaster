@@ -11,7 +11,7 @@ import {
 } from './utils'
 import type { DanceMasterInstance, Direction } from '../types'
 
-const ADVANCE_DISTANCE = 50
+const BASE_ADVANCE_DISTANCE = 50
 
 export const switchWithPartner = async (
   danceMaster: DanceMasterInstance,
@@ -96,6 +96,7 @@ export const fastSevensWithPartner = async (danceMaster: DanceMasterInstance): P
 export const advanceAndRetire = async (danceMaster: DanceMasterInstance): Promise<unknown[]> => {
   const state = danceMaster.state
   headerManager.update('Advance and Retire')
+  const advanceDistance = BASE_ADVANCE_DISTANCE * positionManager.scaleFactor
   const timelines: anime.AnimeTimelineInstance[] = []
   switch (state.formation) {
     case Formations.TWO_FACING_TWO:
@@ -118,19 +119,19 @@ export const advanceAndRetire = async (danceMaster: DanceMasterInstance): Promis
         switch (dancer.currentNamedPosition) {
           case Positions.FIRST_TOP_LEAD:
           case Positions.FIRST_TOP_FOLLOW:
-            translateY += ADVANCE_DISTANCE
+            translateY += advanceDistance
             break
           case Positions.SECOND_TOP_LEAD:
           case Positions.SECOND_TOP_FOLLOW:
-            translateY -= ADVANCE_DISTANCE
+            translateY -= advanceDistance
             break
           case Positions.FIRST_SIDE_LEAD:
           case Positions.FIRST_SIDE_FOLLOW:
-            translateX -= ADVANCE_DISTANCE
+            translateX -= advanceDistance
             break
           case Positions.SECOND_SIDE_LEAD:
           case Positions.SECOND_SIDE_FOLLOW:
-            translateX += ADVANCE_DISTANCE
+            translateX += advanceDistance
             break
         }
 

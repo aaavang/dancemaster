@@ -136,27 +136,31 @@ describe('getInnerCirclePosition', () => {
     positionManager.recalculate(1000, 800)
   })
 
-  it('TOP group: y offset +100', () => {
+  it('TOP group: y offset +100 * scaleFactor', () => {
+    const sf = positionManager.scaleFactor
     const normal = positionManager.get(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_TOP_LEAD)
     const inner = getInnerCirclePosition(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_TOP_LEAD)
-    expect(inner).toEqual({ x: normal.x, y: normal.y + INNER_CIRCLE_OFFSET })
+    expect(inner).toEqual({ x: normal.x, y: normal.y + INNER_CIRCLE_OFFSET * sf })
   })
 
-  it('BOTTOM group: y offset -100', () => {
+  it('BOTTOM group: y offset -100 * scaleFactor', () => {
+    const sf = positionManager.scaleFactor
     const normal = positionManager.get(Formations.EIGHT_HAND_SQUARE, Positions.SECOND_TOP_LEAD)
     const inner = getInnerCirclePosition(Formations.EIGHT_HAND_SQUARE, Positions.SECOND_TOP_LEAD)
-    expect(inner).toEqual({ x: normal.x, y: normal.y - INNER_CIRCLE_OFFSET })
+    expect(inner).toEqual({ x: normal.x, y: normal.y - INNER_CIRCLE_OFFSET * sf })
   })
 
-  it('1st SIDE group: x offset -100', () => {
+  it('1st SIDE group: x offset -100 * scaleFactor', () => {
+    const sf = positionManager.scaleFactor
     const normal = positionManager.get(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_SIDE_LEAD)
     const inner = getInnerCirclePosition(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_SIDE_LEAD)
-    expect(inner).toEqual({ x: normal.x - INNER_CIRCLE_OFFSET, y: normal.y })
+    expect(inner).toEqual({ x: normal.x - INNER_CIRCLE_OFFSET * sf, y: normal.y })
   })
 
-  it('2nd SIDE group: x offset +100', () => {
+  it('2nd SIDE group: x offset +100 * scaleFactor', () => {
+    const sf = positionManager.scaleFactor
     const normal = positionManager.get(Formations.EIGHT_HAND_SQUARE, Positions.SECOND_SIDE_LEAD)
     const inner = getInnerCirclePosition(Formations.EIGHT_HAND_SQUARE, Positions.SECOND_SIDE_LEAD)
-    expect(inner).toEqual({ x: normal.x + INNER_CIRCLE_OFFSET, y: normal.y })
+    expect(inner).toEqual({ x: normal.x + INNER_CIRCLE_OFFSET * sf, y: normal.y })
   })
 })

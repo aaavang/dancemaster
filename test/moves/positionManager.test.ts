@@ -11,17 +11,21 @@ describe('PositionManager', () => {
   })
 
   it('recalculate() computes center with HEADER_OFFSET', () => {
-    expect(pm.center).toEqual({ x: 500, y: 500 })
+    const sf = pm.scaleFactor
+    expect(pm.center).toEqual({ x: 500, y: 400 + HEADER_OFFSET * sf })
     expect(HEADER_OFFSET).toBe(100)
   })
 
   it('get() returns correct position for FIRST_TOP_LEAD', () => {
+    const sf = pm.scaleFactor
+    const center = pm.center
     const pos = pm.get(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_TOP_LEAD)
-    expect(pos).toEqual({ x: 525, y: 250, rotation: 0 })
+    expect(pos).toEqual({ x: center.x + 25 * sf, y: center.y - 250 * sf, rotation: 0 })
   })
 
   it('all 8 EIGHT_HAND_SQUARE positions have correct offsets from center', () => {
     const center = pm.center
+    const sf = pm.scaleFactor
     const f = Formations.EIGHT_HAND_SQUARE
     const positions = {
       [Positions.FIRST_TOP_FOLLOW]:  { dx: -125, dy: -250, rotation: 0 },
@@ -37,8 +41,8 @@ describe('PositionManager', () => {
     for (const [posName, expected] of Object.entries(positions)) {
       const pos = pm.get(f, posName)
       expect(pos).toEqual({
-        x: center.x + expected.dx,
-        y: center.y + expected.dy,
+        x: center.x + expected.dx * sf,
+        y: center.y + expected.dy * sf,
         rotation: expected.rotation,
       })
     }
@@ -46,6 +50,7 @@ describe('PositionManager', () => {
 
   it('all 4 TWO_FACING_TWO positions have correct offsets from center', () => {
     const center = pm.center
+    const sf = pm.scaleFactor
     const f = Formations.TWO_FACING_TWO
     const positions = {
       [Positions.FIRST_TOP_FOLLOW]:  { dx: -125, dy: -150, rotation: 0 },
@@ -57,8 +62,8 @@ describe('PositionManager', () => {
     for (const [posName, expected] of Object.entries(positions)) {
       const pos = pm.get(f, posName)
       expect(pos).toEqual({
-        x: center.x + expected.dx,
-        y: center.y + expected.dy,
+        x: center.x + expected.dx * sf,
+        y: center.y + expected.dy * sf,
         rotation: expected.rotation,
       })
     }
@@ -77,10 +82,12 @@ describe('PositionManager', () => {
 
     pm.recalculate(1200, 1000)
 
-    expect(pm.center).toEqual({ x: 600, y: 600 })
+    const sf2 = pm.scaleFactor
+    const center2 = pm.center
+    expect(center2).toEqual({ x: 600, y: 500 + HEADER_OFFSET * sf2 })
     const posAfter = pm.get(Formations.EIGHT_HAND_SQUARE, Positions.FIRST_TOP_LEAD)
-    expect(posAfter.x).toBe(625)
-    expect(posAfter.y).toBe(350)
+    expect(posAfter.x).toBe(center2.x + 25 * sf2)
+    expect(posAfter.y).toBe(center2.y - 250 * sf2)
     expect(posAfter).not.toEqual(posBefore)
   })
 })

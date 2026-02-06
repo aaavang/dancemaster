@@ -10,7 +10,7 @@ import {
 import { faceCenter, facePosition } from './facing'
 import type { Dancer, DanceMasterInstance, Position } from '../types'
 
-const MINGLE_MAX_DISTANCE = 200
+const BASE_MINGLE_MAX_DISTANCE = 200
 
 export const sound = new Audio(import.meta.env.BASE_URL + 'clap.mp3')
 sound.preload = 'auto'
@@ -194,10 +194,11 @@ export const goHome = async (danceMaster: DanceMasterInstance): Promise<void> =>
 export const randomizeDancerOffsets = (danceMaster: DanceMasterInstance): Promise<void> => {
   const min = -1
   const max = 1
+  const offsetScale = 100 * positionManager.scaleFactor
   for (const dancer of Object.values(danceMaster.state.dancers)) {
     dancer.currentPose = {
-      x: (Math.random() * (max - min) + min) * 100,
-      y: (Math.random() * (max - min) + min) * 100,
+      x: (Math.random() * (max - min) + min) * offsetScale,
+      y: (Math.random() * (max - min) + min) * offsetScale,
       rotation: Math.random() * 360,
     }
     dancer.currentNamedPosition = Positions.OUT_OF_POSITION
@@ -211,6 +212,7 @@ export const mingle = async (danceMaster: DanceMasterInstance): Promise<void> =>
   headerManager.update('Mingling')
   danceMaster.mingling = true
   while (danceMaster.mingling) {
+    const mingledMaxDistance = BASE_MINGLE_MAX_DISTANCE * positionManager.scaleFactor
     const timelines: anime.AnimeTimelineInstance[] = []
     for (const dancer of Object.values(danceMaster.state.dancers)) {
       dancer.currentNamedPosition = Positions.OUT_OF_POSITION
@@ -221,7 +223,7 @@ export const mingle = async (danceMaster: DanceMasterInstance): Promise<void> =>
       }
       const currentAngle = dancer.currentPose.rotation + 90
       let newAngle = Math.random() * 360
-      let distance = Math.random() * MINGLE_MAX_DISTANCE
+      let distance = Math.random() * mingledMaxDistance
 
       if (currentPosition.x < 50) {
         newAngle = 270
