@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/dancemaster/',
+  base: '/',
   test: {
     environment: 'jsdom',
   },
